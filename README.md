@@ -19,7 +19,7 @@ The goal of this small project is to simplify and improve the way static resourc
 
 * Ant
 * Ant-Contrib (ant-contrib-1.0b3.jar included)
-* Google Compiler (compiler-20110615.jar of included)
+* Google Compiler (compiler-20110615.jar included)
 * YUI Compressor (yuicompressor-2.4.6.jar included)
 
 ## Example
@@ -36,12 +36,18 @@ When the build script has run, this will be replaced by:
 
 	<link rel="stylesheet" href="http://static.example.org/css/stylesheet-468fb262.css" type="text/css"/>
 	
-And the actual file being referenced here (`stylesheet-468fb262.css`) is created, obviously. For Javascript it works identical, but with `<script>` elements. It is all easily configurable, e.g. you can set:
+And the actual file being referenced here (`stylesheet-468fb262.css`) is created, obviously. For Javascript it works identical, but with `<script>` elements.
+
+## Configuration
+	
+It is all easily configurable, e.g. you can set:
 
 * the url to the resulting file (here: `http://static.example.org/css/`)
 * the filename of the resulting optimized file (here: `stylesheet.css` - the build script added `-468fb262`)
 * the length of the checksum in the filename (here: `8`, max: `32`)
 * the files to be concatenated and optimized (e.g. in development there is an extra debug.css that should not be included)
 * the order of the files to be concatenated
+
+The `build.xml` and `build.properties` file are the files you should modify. The `optimize.xml` file containing `<macrodef>`s (to be used as Ant tasks) is meant to be included in existing build scripts. Of course, you can also the provided files as a starting point and work from there.
 
 By the way, all source files are first copied to a distribution folder before being processed.
