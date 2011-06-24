@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Jaguarundi - MACRODEF - OPTIMIZE">
+	
+	<macrodef name="optimize-js">
+
+		<attribute name="inputFilelist"/>
+		<attribute name="outputDir"/>
+		<attribute name="outputFile"/>
+		<attribute name="tempFile" default="temp.js"/>
+		<attribute name="refFile"/>
+		<attribute name="refFileTag"/>
+		<attribute name="outputFileLocation"/>
+		
+		<sequential>
+			
+			<echo message="-- Optimizing Javascript ---"/>
+
+			<!-- Concatenate files -->
+			<echo message="Concatenating files into @{outputDir}/@{tempFile}"/>
+			<concat destfile="@{outputDir}/@{tempFile}">
+				<filelist refid="@{inputFilelist}"/>
+			</concat>
+
+			<!-- Closure Compiler Application -->
+			<closurecompiler
+				fileInput="@{outputDir}/@{tempFile}"
+				fileOutput="@{outputDir}/@{outputFile}"
+				compilationLevel="${lib.closurecompiler.level}"/>
+			
+			<!-- Version in filename -->
+			<addClippedChecksum
+				dir="@{outputDir}"
+				file="@{outputFile}"
+				type="js"
+				refFile="@{refFile}"
+				refFileTag="@{refFileTag}"
+				outputFileLocation="@{outputFileLocation}"/>			
+
+				<!-- Cleanup -->
+				<delete>
+					<filelist refid="@{inputFilelist}"/>
+				</delete>
+				<delete file="@{outputDir}/@{tempFile}"/>
+
+				<echo message="-- Optimizing Javascript done ---"/>
+		</sequential>
+	</macrodef>	
+	
+	<macrodef name="optimize-css">
+
+		<attribute name="inputFilelist"/>
+		<attribute name="outputDir"/>
+		<attribute name="outputFile"/>
+		<attribute name="tempFile" default="temp.css"/>
+		<attribute name="refFile"/>
+		<attribute name="refFileTag"/>
+		<attribute name="outputFileLocation"/>
+		
+		<sequential>
+
+			<echo message="-- Optimizing CSS ---"/>
+
+			<!-- Concatenate files (in specific ordered filelist) -->
+			<echo message="Concatenating files into @{outputDir}/@{tempFile}"/>
+			<concat destfile="@{outputDir}/@{tempFile}">
+				<filelist refid="@{inputFilelist}"/>
+			</concat>
+
+			<!-- YUI Compressor -->
+			<yuicompressor
+				fileInput="@{outputDir}/@{tempFile}"
+				fileOutput="@{outputDir}/@{outputFile}"/>
+
+			<!-- Version in filename -->
+			<addClippedChecksum
+				dir="@{outputDir}"
+				file="@{outputFile}"
+				type="css"
+				refFile="@{refFile}"
+				refFileTag="@{refFileTag}"
+				outputFileLocation="@{outputFileLocation}"/>
+
+				<!-- Cleanup -->
+				<delete>
+					<filelist refid="@{inputFilelist}"/>
+				</delete>
+				<delete file="@{outputDir}/@{tempFile}"/>
+
+				<echo message="-- Optimizing CSS done ---"/>
+
+		</sequential>
+	</macrodef>	
+	
+	<macrodef name="closurecompiler">
+		<attribute name="fileInput"/>
+		<attribute name="fileOutput"/>
+		<attribute name="compilationLevel"/>
+		<sequential>
+			<echo message="Closure Compiler Application is saving minified output to @{fileOutput}"/>
+		    <java jar="${basedir}/lib/compiler.jar" fork="true">
+		        <arg line="--compilation_level @{compilationLevel} --js @{fileInput} --js_output_file @{fileOutput}" />
+		    </java>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="yuicompressor">
+		<attribute name="fileInput"/>
+		<attribute name="fileOutput"/>
+		<sequential>
+			<echo message="YUI Compressor is saving minified output to @{fileOutput}"/>
+		    <java jar="${basedir}/lib/yuicompressor-2.4.6.jar" fork="true">
+		        <arg line="--type css -o @{fileOutput} @{fileInput}" />
+		    </java>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="addClippedChecksum">
+		<attribute name="dir" />
+		<attribute name="file"/>
+		<attribute name="type"/>
+		<attribute name="refFile"/>
+		<attribute name="refFileTag"/>
+		<attribute name="outputFileLocation"/>
+		<sequential>
+
+			<!-- Create checksum and store new filename (while clipping checksum to 8 characters) in property -->
+			<checksum file="@{dir}/@{file}" property="temp.checksum"/>
+			<propertyregex property="temp.filename" input="@{file} ${temp.checksum}" regexp="(.*)\.(.*)\ (.{${build.target.CHECKSUM_LENGTH}})(.{0,31})" select="\1-\3.\2" override="yes"/>			
+			
+			<!-- Rename file -->
+			<echo message="Versioning: Renaming @{file} to ${temp.filename}"/>
+			<move file="@{dir}/@{file}" tofile="@{dir}/${temp.filename}" />
+			
+			<!-- Store filename in template file -->
+			<echo message="Versioning: Replacing tag @{refFileTag} in @{refFile}"/>
+			<if>
+				<equals arg1="@{type}" arg2="css" />
+				<then>
+					<replaceregexp
+						file="@{refFile}"
+						match="&lt;!--@{refFileTag}--&gt;(.*)&lt;!--@{refFileTag}--&gt;"
+						flags="s"
+						replace="&lt;link rel=&quot;stylesheet&quot; href=&quot;@{outputFileLocation}${temp.filename}&quot; type=&quot;text/css&quot;/&gt;"/>
+				</then>
+			</if>
+			<if>
+				<equals arg1="@{type}" arg2="js" />
+				<then>
+					<replaceregexp
+						file="@{refFile}"
+						match="&lt;!--@{refFileTag}--&gt;(.*)&lt;!--@{refFileTag}--&gt;"
+						flags="s"
+						replace="&lt;script src=&quot;@{outputFileLocation}${temp.filename}&quot;&gt;&lt;/script&gt;"/>
+				</then>
+			</if>
+			
+			<!-- Cleanup -->
+			<var name="temp.checksum" value="" unset="true"/>
+			<var name="temp.filename" value="" unset="true"/>
+		</sequential>
+	</macrodef>
+
+</project>

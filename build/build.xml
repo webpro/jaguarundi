@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Jaguarundi" default="OPTIMIZE" basedir=".">
+	
+	<property file="${basedir}/build.properties" />
+
+	<!-- Include ant-contrib -->
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${build.dir}/lib/ant-contrib-1.0b3.jar"/>
+		</classpath>
+	</taskdef>
+	
+	<import file="${build.dir}/macrodef/optimize.xml" />
+	
+	<target name="CLEAN">
+		<delete dir="${build.dist.dir}"/>
+	</target>
+	
+	<!-- Create distribution folder and copy source files to it -->
+	<target name="INITIALIZE" depends="CLEAN">
+		<mkdir dir="${build.dist.dir}"/>
+		<copy todir="${build.dist.dir}">
+			<fileset dir="${src.dir}"/>
+		</copy>
+	</target>
+	
+	<!-- Optimize Javascript and CSS resources -->
+	<target name="OPTIMIZE" depends="INITIALIZE">
+
+		<!-- The filelist is useful to maintain the same source order in the optimized file -->
+		<filelist id="scripts" dir="${build.js.dir}">
+			<file name="core.js"/>
+			<file name="app.js"/>
+		</filelist>
+
+		<!--
+			The "refFile" attribute indicates where the commented tags are.
+			The "refFileTag" should wrap the original <script> elements in the refFile.
+			This together will be replaced by a single <script src="@outputFileLocation@outputFile"/>
+		-->
+		<optimize-js
+			inputFilelist="scripts"
+			outputDir="${build.js.dir}"
+			outputFile="script.js"
+			refFile="${build.dist.dir}/index.html"
+			refFileTag="##OPTIMIZE_JS##"
+			outputFileLocation="http://static.example.org/js/"/>
+
+		<!-- The CSS optimizations work identical to Javascript, described above. -->
+		<filelist id="stylesheets" dir="${build.css.dir}">
+			<file name="normalize.css"/>
+			<file name="stylesheet.css"/>
+			<file name="typography.css"/>
+		</filelist>
+
+		<optimize-css
+			inputFilelist="stylesheets"
+			outputDir="${build.css.dir}"
+			outputFile="stylesheet.css"
+			refFile="${build.dist.dir}/index.html"
+			refFileTag="##OPTIMIZE_CSS##"
+			outputFileLocation="http://static.example.org/css/"/>
+
+		<!--
+			You can have more calls to either <optimize-js/> or <optimize-css/> here.
+			Make sure they each have their own filelist.
+		-->
+
+	</target>
+
+</project>
