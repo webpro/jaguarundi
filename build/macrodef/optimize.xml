@@ -97,7 +97,7 @@
 		<attribute name="compilationLevel"/>
 		<sequential>
 			<echo message="Closure Compiler Application is saving minified output to @{fileOutput}"/>
-		    <java jar="${basedir}/lib/compiler.jar" fork="true">
+		    <java jar="${basedir}/lib/compiler-20110615.jar" fork="true">
 		        <arg line="--compilation_level @{compilationLevel} --js @{fileInput} --js_output_file @{fileOutput}" />
 		    </java>
 		</sequential>
