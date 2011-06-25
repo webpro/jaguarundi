@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Jaguarundi - MACRODEF - OPTIMIZE">
 	
+	<!--
+		Properties and default values (overridden by build properties file):
+		- lib.closurecompiler.level = SIMPLE_OPTIMIZATIONS
+		- build.target.CHECKSUM_LENGTH = 8
+	-->
+
 	<macrodef name="optimize-js">
 
 		<attribute name="inputFilelist"/>
 		<attribute name="outputDir"/>
-		<attribute name="outputFile"/>
+		<attribute name="outputFile" default="script.js"/>
 		<attribute name="tempFile" default="temp.js"/>
 		<attribute name="refFile"/>
-		<attribute name="refFileTag"/>
+		<attribute name="refFileTag" default="##OPTIMIZE_JS##"/>
 		<attribute name="outputFileLocation"/>
 		
 		<sequential>
 			
-			<echo message="-- Optimizing Javascript ---"/>
+			<echo message="--- Optimizing Javascript ---"/>
 
 			<!-- Concatenate files -->
 			<echo message="Concatenating files into @{outputDir}/@{tempFile}"/>
@@ -24,10 +30,9 @@
 			<!-- Closure Compiler Application -->
 			<closurecompiler
 				fileInput="@{outputDir}/@{tempFile}"
-				fileOutput="@{outputDir}/@{outputFile}"
-				compilationLevel="${lib.closurecompiler.level}"/>
+				fileOutput="@{outputDir}/@{outputFile}"/>
 			
-			<!-- Version in filename -->
+			<!-- Version in filename and update reference in template file -->
 			<addClippedChecksum
 				dir="@{outputDir}"
 				file="@{outputFile}"
@@ -42,7 +47,7 @@
 				</delete>
 				<delete file="@{outputDir}/@{tempFile}"/>
 
-				<echo message="-- Optimizing Javascript done ---"/>
+				<echo message="--- Optimizing Javascript done ---"/>
 		</sequential>
 	</macrodef>	
 	
@@ -50,15 +55,15 @@
 
 		<attribute name="inputFilelist"/>
 		<attribute name="outputDir"/>
-		<attribute name="outputFile"/>
+		<attribute name="outputFile" default="stylesheet.css"/>
 		<attribute name="tempFile" default="temp.css"/>
 		<attribute name="refFile"/>
-		<attribute name="refFileTag"/>
+		<attribute name="refFileTag" default="##OPTIMIZE_CSS##"/>
 		<attribute name="outputFileLocation"/>
 		
 		<sequential>
 
-			<echo message="-- Optimizing CSS ---"/>
+			<echo message="--- Optimizing CSS ---"/>
 
 			<!-- Concatenate files (in specific ordered filelist) -->
 			<echo message="Concatenating files into @{outputDir}/@{tempFile}"/>
@@ -71,7 +76,7 @@
 				fileInput="@{outputDir}/@{tempFile}"
 				fileOutput="@{outputDir}/@{outputFile}"/>
 
-			<!-- Version in filename -->
+			<!-- Version in filename and update reference in template file -->
 			<addClippedChecksum
 				dir="@{outputDir}"
 				file="@{outputFile}"
@@ -86,46 +91,65 @@
 				</delete>
 				<delete file="@{outputDir}/@{tempFile}"/>
 
-				<echo message="-- Optimizing CSS done ---"/>
+				<echo message="--- Optimizing CSS done ---"/>
 
 		</sequential>
 	</macrodef>	
 	
 	<macrodef name="closurecompiler">
+
 		<attribute name="fileInput"/>
 		<attribute name="fileOutput"/>
-		<attribute name="compilationLevel"/>
+
 		<sequential>
+
+			<!-- Set default value for compilation level -->
+			<property name="lib.closurecompiler.level" value="SIMPLE_OPTIMIZATIONS"/>
+
 			<echo message="Closure Compiler Application is saving minified output to @{fileOutput}"/>
-		    <java jar="${basedir}/lib/compiler-20110615.jar" fork="true">
-		        <arg line="--compilation_level @{compilationLevel} --js @{fileInput} --js_output_file @{fileOutput}" />
+		    <java jar="${build.dir}/lib/compiler-20110615.jar" fork="true">
+		        <arg line="--compilation_level ${lib.closurecompiler.level} --js @{fileInput} --js_output_file @{fileOutput}" />
 		    </java>
 		</sequential>
 	</macrodef>
 
 	<macrodef name="yuicompressor">
+
 		<attribute name="fileInput"/>
 		<attribute name="fileOutput"/>
+
 		<sequential>
 			<echo message="YUI Compressor is saving minified output to @{fileOutput}"/>
-		    <java jar="${basedir}/lib/yuicompressor-2.4.6.jar" fork="true">
+		    <java jar="${build.dir}/lib/yuicompressor-2.4.6.jar" fork="true">
 		        <arg line="--type css -o @{fileOutput} @{fileInput}" />
 		    </java>
 		</sequential>
 	</macrodef>
 	
 	<macrodef name="addClippedChecksum">
+
 		<attribute name="dir" />
 		<attribute name="file"/>
 		<attribute name="type"/>
 		<attribute name="refFile"/>
 		<attribute name="refFileTag"/>
 		<attribute name="outputFileLocation"/>
+
 		<sequential>
 
-			<!-- Create checksum and store new filename (while clipping checksum to 8 characters) in property -->
+			<!-- Set default value for checksum length -->
+			<property name="build.target.CHECKSUM_LENGTH" value="8"/>
+
+			<!-- Create checksum -->
 			<checksum file="@{dir}/@{file}" property="temp.checksum"/>
-			<propertyregex property="temp.filename" input="@{file} ${temp.checksum}" regexp="(.*)\.(.*)\ (.{${build.target.CHECKSUM_LENGTH}})(.{0,31})" select="\1-\3.\2" override="yes"/>			
+
+			<!-- Store new filename with (clipped) checksum in property -->
+			<propertyregex
+				property="temp.filename"
+				input="@{file} ${temp.checksum}"
+				regexp="(.*)\.(.*)\ (.{${build.target.CHECKSUM_LENGTH}})(.{0,31})"
+				select="\1-\3.\2"
+				override="yes"/>
 			
 			<!-- Rename file -->
 			<echo message="Versioning: Renaming @{file} to ${temp.filename}"/>
