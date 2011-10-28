@@ -23,9 +23,9 @@
 		<attribute name="refFile"/>
 		<attribute name="refFileTag" default="##OPTIMIZE_JS##"/>
 		<attribute name="outputFileLocation"/>
-		
+
 		<sequential>
-			
+
 			<echo message="--- Optimizing Javascript ---"/>
 
 			<!-- Concatenate files -->
@@ -38,7 +38,7 @@
 			<closurecompiler
 				fileInput="@{outputDir}/@{tempFile}"
 				fileOutput="@{outputDir}/@{outputFile}"/>
-			
+
 			<!-- Version in filename and update reference in template file -->
 			<addClippedChecksum
 				dir="@{outputDir}"
@@ -46,18 +46,18 @@
 				type="js"
 				refFile="@{refFile}"
 				refFileTag="@{refFileTag}"
-				outputFileLocation="@{outputFileLocation}"/>			
+				outputFileLocation="@{outputFileLocation}"/>
 
-				<!-- Cleanup -->
-				<delete>
-					<filelist refid="@{inputFilelist}"/>
-				</delete>
-				<delete file="@{outputDir}/@{tempFile}"/>
+			<!-- Cleanup -->
+			<delete>
+				<filelist refid="@{inputFilelist}"/>
+			</delete>
+			<delete file="@{outputDir}/@{tempFile}"/>
 
-				<echo message="--- Optimizing Javascript done ---"/>
+			<echo message="--- Optimizing Javascript done ---"/>
 		</sequential>
-	</macrodef>	
-	
+	</macrodef>
+
 	<macrodef name="optimize-css">
 
 		<attribute name="inputFilelist"/>
@@ -67,7 +67,7 @@
 		<attribute name="refFile"/>
 		<attribute name="refFileTag" default="##OPTIMIZE_CSS##"/>
 		<attribute name="outputFileLocation"/>
-		
+
 		<sequential>
 
 			<echo message="--- Optimizing CSS ---"/>
@@ -92,17 +92,17 @@
 				refFileTag="@{refFileTag}"
 				outputFileLocation="@{outputFileLocation}"/>
 
-				<!-- Cleanup -->
-				<delete>
-					<filelist refid="@{inputFilelist}"/>
-				</delete>
-				<delete file="@{outputDir}/@{tempFile}"/>
+			<!-- Cleanup -->
+			<delete>
+				<filelist refid="@{inputFilelist}"/>
+			</delete>
+			<delete file="@{outputDir}/@{tempFile}"/>
 
-				<echo message="--- Optimizing CSS done ---"/>
+			<echo message="--- Optimizing CSS done ---"/>
 
 		</sequential>
-	</macrodef>	
-	
+	</macrodef>
+
 	<macrodef name="closurecompiler">
 
 		<attribute name="fileInput"/>
@@ -157,11 +157,11 @@
 				regexp="(.*)\.(.*)\ (.{${build.target.CHECKSUM_LENGTH}})(.{0,31})"
 				select="\1-\3.\2"
 				override="yes"/>
-			
+
 			<!-- Rename file -->
 			<echo message="Versioning: Renaming @{file} to ${temp.filename}"/>
 			<move file="@{dir}/@{file}" tofile="@{dir}/${temp.filename}" />
-			
+
 			<!-- Store filename in template file -->
 			<echo message="Versioning: Replacing tag @{refFileTag} in @{refFile}"/>
 			<if>
@@ -184,7 +184,7 @@
 						replace="&lt;script src=&quot;@{outputFileLocation}${temp.filename}&quot;&gt;&lt;/script&gt;"/>
 				</then>
 			</if>
-			
+
 			<!-- Cleanup -->
 			<var name="temp.checksum" value="" unset="true"/>
 			<var name="temp.filename" value="" unset="true"/>
