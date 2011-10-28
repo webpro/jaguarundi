@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Jaguarundi - MACRODEF - OPTIMIZE">
-	
+
+    <!--
+        We use ${imported.basedir} to reference local libs
+        in case (only) this file is imported in another project.
+    -->
+
+    <dirname property="imported.basedir" file="${ant.file.Jaguarundi - MACRODEF - OPTIMIZE}"/>
+
 	<!--
 		Properties and default values (overridden by build properties file):
 		- lib.closurecompiler.level = SIMPLE_OPTIMIZATIONS
@@ -107,7 +114,7 @@
 			<property name="lib.closurecompiler.level" value="SIMPLE_OPTIMIZATIONS"/>
 
 			<echo message="Closure Compiler Application is saving minified output to @{fileOutput}"/>
-		    <java jar="${build.dir}/lib/compiler-20110615.jar" fork="true">
+		    <java jar="${imported.basedir}/../lib/compiler-20111003.jar" fork="true">
 		        <arg line="--compilation_level ${lib.closurecompiler.level} --js @{fileInput} --js_output_file @{fileOutput}" />
 		    </java>
 		</sequential>
@@ -120,12 +127,12 @@
 
 		<sequential>
 			<echo message="YUI Compressor is saving minified output to @{fileOutput}"/>
-		    <java jar="${build.dir}/lib/yuicompressor-2.4.6.jar" fork="true">
+		    <java jar="${imported.basedir}/../lib/yuicompressor-2.4.6.jar" fork="true">
 		        <arg line="--type css -o @{fileOutput} @{fileInput}" />
 		    </java>
 		</sequential>
 	</macrodef>
-	
+
 	<macrodef name="addClippedChecksum">
 
 		<attribute name="dir" />
