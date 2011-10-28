@@ -8,6 +8,16 @@
 
     <dirname property="imported.basedir" file="${ant.file.Jaguarundi - MACRODEF - OPTIMIZE}"/>
 
+    <!--
+        Include ant-contrib (to be sure it's available when this file is imported)
+    -->
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="${imported.basedir}/../lib/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+
 	<!--
 		Properties and default values (overridden by build properties file):
 		- lib.closurecompiler.level = SIMPLE_OPTIMIZATIONS
