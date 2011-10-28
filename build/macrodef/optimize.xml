@@ -19,7 +19,7 @@
     </taskdef>
 
 	<!--
-		Properties and default values (overridden by build properties file):
+		Properties and default values (may be overridden by your properties file):
 		- lib.closurecompiler.level = SIMPLE_OPTIMIZATIONS
 		- build.target.CHECKSUM_LENGTH = 8
 	-->
