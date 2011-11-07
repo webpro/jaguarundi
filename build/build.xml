@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Jaguarundi" default="OPTIMIZE" basedir=".">
-	
+<project name="Jaguarundi" default="POST-CLEAN" basedir=".">
+
 	<property file="${basedir}/build.properties" />
 
 	<!-- Include ant-contrib -->
@@ -35,18 +35,36 @@
 
 		<!--
 			The "refFile" attribute indicates where the commented tags are.
-			The "refFileTag" should wrap the original <script> elements in the refFile.
-			This together will be replaced by a single <script src="@outputFileLocation@outputFile"/>
+			The "refTag" should wrap the original <script> elements in the refFile.
+			The "refType" attribute indicates whether the output will be wrapped in
+			either a single string ("@outputFileLocation@outputFile") or in a single
+			element (<script src="@outputFileLocation@outputFile"></script>).
 		-->
+
+        <optimize-js
+            inputFilelist="scripts"
+            outputDir="${build.js.dir}"
+            outputFile="script.js"
+            refFile="${build.dist.dir}/index.html"
+            refTag="/\*##OPTIMIZE_JS##\*/"
+            refType="string"
+            outputFileLocation="http://static.example.org/js/"/>
+
 		<optimize-js
 			inputFilelist="scripts"
 			outputDir="${build.js.dir}"
 			outputFile="script.js"
 			refFile="${build.dist.dir}/index.html"
-			refFileTag="##OPTIMIZE_JS##"
+			refTag="&lt;!--##OPTIMIZE_JS##--&gt;"
+			refType="element"
 			outputFileLocation="http://static.example.org/js/"/>
 
-		<!-- The CSS optimizations work identical to Javascript, described above. -->
+
+		<!--
+		    The CSS optimizations work identical to Javascript, described above.
+		    The exception is that there's no need to set @refType (always in <link> element)
+		-->
+
 		<filelist id="stylesheets" dir="${build.css.dir}">
 			<file name="normalize.css"/>
 			<file name="stylesheet.css"/>
@@ -58,7 +76,7 @@
 			outputDir="${build.css.dir}"
 			outputFile="stylesheet.css"
 			refFile="${build.dist.dir}/index.html"
-			refFileTag="##OPTIMIZE_CSS##"
+			refTag="&lt;!--##OPTIMIZE_CSS##--&gt;"
 			outputFileLocation="http://static.example.org/css/"/>
 
 		<!--
@@ -67,5 +85,17 @@
 		-->
 
 	</target>
+
+    <target name="POST-CLEAN" depends="OPTIMIZE">
+
+        <delete>
+            <filelist refid="scripts"/>
+        </delete>
+
+        <delete>
+            <filelist refid="stylesheets"/>
+        </delete>
+
+    </target>
 
 </project>

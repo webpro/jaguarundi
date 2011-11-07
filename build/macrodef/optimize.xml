@@ -31,7 +31,8 @@
 		<attribute name="outputFile" default="script.js"/>
 		<attribute name="tempFile" default="temp.js"/>
 		<attribute name="refFile"/>
-		<attribute name="refFileTag" default="##OPTIMIZE_JS##"/>
+		<attribute name="refTag" default="&lt;!--##OPTIMIZE_JS##--&gt;"/>
+		<attribute name="refType" default="element"/>
 		<attribute name="outputFileLocation"/>
 
 		<sequential>
@@ -55,13 +56,11 @@
 				file="@{outputFile}"
 				type="js"
 				refFile="@{refFile}"
-				refFileTag="@{refFileTag}"
+				refTag="@{refTag}"
+				refType="@{refType}"
 				outputFileLocation="@{outputFileLocation}"/>
 
 			<!-- Cleanup -->
-			<delete>
-				<filelist refid="@{inputFilelist}"/>
-			</delete>
 			<delete file="@{outputDir}/@{tempFile}"/>
 
 			<echo message="--- Optimizing Javascript done ---"/>
@@ -75,7 +74,7 @@
 		<attribute name="outputFile" default="stylesheet.css"/>
 		<attribute name="tempFile" default="temp.css"/>
 		<attribute name="refFile"/>
-		<attribute name="refFileTag" default="##OPTIMIZE_CSS##"/>
+		<attribute name="refTag" default="&lt;!--##OPTIMIZE_CSS##--&gt;"/>
 		<attribute name="outputFileLocation"/>
 
 		<sequential>
@@ -99,13 +98,10 @@
 				file="@{outputFile}"
 				type="css"
 				refFile="@{refFile}"
-				refFileTag="@{refFileTag}"
+				refTag="@{refTag}"
 				outputFileLocation="@{outputFileLocation}"/>
 
 			<!-- Cleanup -->
-			<delete>
-				<filelist refid="@{inputFilelist}"/>
-			</delete>
 			<delete file="@{outputDir}/@{tempFile}"/>
 
 			<echo message="--- Optimizing CSS done ---"/>
@@ -149,7 +145,8 @@
 		<attribute name="file"/>
 		<attribute name="type"/>
 		<attribute name="refFile"/>
-		<attribute name="refFileTag"/>
+		<attribute name="refTag"/>
+		<attribute name="refType" default="element"/>
 		<attribute name="outputFileLocation"/>
 
 		<sequential>
@@ -173,13 +170,13 @@
 			<move file="@{dir}/@{file}" tofile="@{dir}/${temp.filename}" />
 
 			<!-- Store filename in template file -->
-			<echo message="Versioning: Replacing tag @{refFileTag} in @{refFile}"/>
+			<echo message="Versioning: Replacing tag @{refTag} in @{refFile}"/>
 			<if>
 				<equals arg1="@{type}" arg2="css" />
 				<then>
 					<replaceregexp
 						file="@{refFile}"
-						match="&lt;!--@{refFileTag}--&gt;(.*)&lt;!--@{refFileTag}--&gt;"
+						match="&lt;!--@{refTag}--&gt;(.*)&lt;!--@{refTag}--&gt;"
 						flags="s"
 						replace="&lt;link rel=&quot;stylesheet&quot; href=&quot;@{outputFileLocation}${temp.filename}&quot; type=&quot;text/css&quot;/&gt;"/>
 				</then>
@@ -187,11 +184,18 @@
 			<if>
 				<equals arg1="@{type}" arg2="js" />
 				<then>
+                    <var name="refReplace" value="&lt;script src=&quot;@{outputFileLocation}${temp.filename}&quot;&gt;&lt;/script&gt;"/>
+                    <if>
+                        <equals arg1="@{refType}" arg2="string" />
+                        <then>
+                            <var name="refReplace" value="&quot;@{outputFileLocation}${temp.filename}&quot;"/>
+                        </then>
+                    </if>
 					<replaceregexp
 						file="@{refFile}"
-						match="&lt;!--@{refFileTag}--&gt;(.*)&lt;!--@{refFileTag}--&gt;"
+						match="@{refTag}(.*)@{refTag}"
 						flags="s"
-						replace="&lt;script src=&quot;@{outputFileLocation}${temp.filename}&quot;&gt;&lt;/script&gt;"/>
+						replace="${refReplace}"/>
 				</then>
 			</if>
 
