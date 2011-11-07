@@ -9,13 +9,13 @@
 			<pathelement location="${build.dir}/lib/ant-contrib-1.0b3.jar"/>
 		</classpath>
 	</taskdef>
-	
+
 	<import file="${build.dir}/macrodef/optimize.xml" />
-	
+
 	<target name="CLEAN">
 		<delete dir="${build.dist.dir}"/>
 	</target>
-	
+
 	<!-- Create distribution folder and copy source files to it -->
 	<target name="INITIALIZE" depends="CLEAN">
 		<mkdir dir="${build.dist.dir}"/>
@@ -23,7 +23,7 @@
 			<fileset dir="${src.dir}"/>
 		</copy>
 	</target>
-	
+
 	<!-- Optimize Javascript and CSS resources -->
 	<target name="OPTIMIZE" depends="INITIALIZE">
 
