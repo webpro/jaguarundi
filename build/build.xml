@@ -60,6 +60,15 @@
 			outputFileLocation="http://static.example.org/js/"/>
 
 
+        <!--
+            And a minimal example. This just concatenates and optimizes
+            the files in the input fileList. No references are updated.
+        -->
+
+        <optimize-js
+            inputFilelist="scripts"
+            outputDir="${build.dist.dir}"/>
+
 		<!--
 		    The CSS optimizations work identical to Javascript, described above.
 		    The exception is that there's no need to set @refType (always in <link> element)

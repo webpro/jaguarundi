@@ -30,10 +30,10 @@
 		<attribute name="outputDir"/>
 		<attribute name="outputFile" default="script.js"/>
 		<attribute name="tempFile" default="temp.js"/>
-		<attribute name="refFile"/>
+		<attribute name="refFile" default=""/>
 		<attribute name="refTag" default="&lt;!--##OPTIMIZE_JS##--&gt;"/>
 		<attribute name="refType" default="element"/>
-		<attribute name="outputFileLocation"/>
+		<attribute name="outputFileLocation" default=""/>
 
 		<sequential>
 
@@ -73,9 +73,9 @@
 		<attribute name="outputDir"/>
 		<attribute name="outputFile" default="stylesheet.css"/>
 		<attribute name="tempFile" default="temp.css"/>
-		<attribute name="refFile"/>
+		<attribute name="refFile" default=""/>
 		<attribute name="refTag" default="&lt;!--##OPTIMIZE_CSS##--&gt;"/>
-		<attribute name="outputFileLocation"/>
+		<attribute name="outputFileLocation" default=""/>
 
 		<sequential>
 
@@ -162,42 +162,53 @@
 				property="temp.filename"
 				input="@{file} ${temp.checksum}"
 				regexp="(.*)\.(.*)\ (.{${build.target.CHECKSUM_LENGTH}})(.{0,31})"
-				select="\1-\3.\2"
+				select="\1.\3.\2"
 				override="yes"/>
 
 			<!-- Rename file -->
 			<echo message="Versioning: Renaming @{file} to ${temp.filename}"/>
 			<move file="@{dir}/@{file}" tofile="@{dir}/${temp.filename}" />
 
-			<!-- Store filename in template file -->
-			<echo message="Versioning: Replacing tag @{refTag} in @{refFile}"/>
-			<if>
-				<equals arg1="@{type}" arg2="css" />
-				<then>
-					<replaceregexp
-						file="@{refFile}"
-						match="&lt;!--@{refTag}--&gt;(.*)&lt;!--@{refTag}--&gt;"
-						flags="s"
-						replace="&lt;link rel=&quot;stylesheet&quot; href=&quot;@{outputFileLocation}${temp.filename}&quot; type=&quot;text/css&quot;/&gt;"/>
-				</then>
-			</if>
-			<if>
-				<equals arg1="@{type}" arg2="js" />
-				<then>
-                    <var name="refReplace" value="&lt;script src=&quot;@{outputFileLocation}${temp.filename}&quot;&gt;&lt;/script&gt;"/>
+            <if>
+                <equals arg1="@{refFile}" arg2="" />
+                <then>
+                    <!-- Store filename in template file -->
+                    <echo message="Versioning: Not updating references"/>
+                </then>
+                <else>
+
+                    <!-- Store filename in template file -->
+                    <echo message="Versioning: Replacing tag @{refTag} in @{refFile}"/>
                     <if>
-                        <equals arg1="@{refType}" arg2="string" />
+                        <equals arg1="@{type}" arg2="css" />
                         <then>
-                            <var name="refReplace" value="&quot;@{outputFileLocation}${temp.filename}&quot;"/>
+                            <replaceregexp
+                                file="@{refFile}"
+                                match="&lt;!--@{refTag}--&gt;(.*)&lt;!--@{refTag}--&gt;"
+                                flags="s"
+                                replace="&lt;link rel=&quot;stylesheet&quot; href=&quot;@{outputFileLocation}${temp.filename}&quot; type=&quot;text/css&quot;/&gt;"/>
                         </then>
                     </if>
-					<replaceregexp
-						file="@{refFile}"
-						match="@{refTag}(.*)@{refTag}"
-						flags="s"
-						replace="${refReplace}"/>
-				</then>
-			</if>
+                    <if>
+                        <equals arg1="@{type}" arg2="js" />
+                        <then>
+                            <var name="refReplace" value="&lt;script src=&quot;@{outputFileLocation}${temp.filename}&quot;&gt;&lt;/script&gt;"/>
+                            <if>
+                                <equals arg1="@{refType}" arg2="string" />
+                                <then>
+                                    <var name="refReplace" value="&quot;@{outputFileLocation}${temp.filename}&quot;"/>
+                                </then>
+                            </if>
+                            <replaceregexp
+                                file="@{refFile}"
+                                match="@{refTag}(.*)@{refTag}"
+                                flags="s"
+                                replace="${refReplace}"/>
+                        </then>
+                    </if>
+
+                </else>
+            </if>
 
 			<!-- Cleanup -->
 			<var name="temp.checksum" value="" unset="true"/>
