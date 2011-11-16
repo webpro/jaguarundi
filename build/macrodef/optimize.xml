@@ -186,7 +186,7 @@
                         <then>
                             <replaceregexp
                                 file="@{refFile}"
-                                match="&lt;!--@{refTag}--&gt;(.*)&lt;!--@{refTag}--&gt;"
+                                match="@{refTag}(.*)@{refTag}"
                                 flags="s"
                                 replace="&lt;link rel=&quot;stylesheet&quot; href=&quot;@{outputFileLocation}${temp.filename}&quot; type=&quot;text/css&quot;/&gt;"/>
                         </then>
