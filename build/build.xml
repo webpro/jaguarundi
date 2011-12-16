@@ -34,6 +34,8 @@
 		</filelist>
 
 		<!--
+		    The outputFile may contain "#" characters, which will be replaced by
+		    a hash of the optimized file (having the same length as number of #'s).
 			The "refFile" attribute indicates where the commented tags are.
 			The "refTag" should wrap the original <script> elements in the refFile.
 			The "refType" attribute indicates whether the output will be wrapped in
@@ -44,7 +46,7 @@
         <optimize-js
             inputFilelist="scripts"
             outputDir="${build.js.dir}"
-            outputFile="script.js"
+            outputFile="script.########.min.js"
             refFile="${build.dist.dir}/index.html"
             refTag="/\*##OPTIMIZE_JS##\*/"
             refType="string"
@@ -53,12 +55,11 @@
 		<optimize-js
 			inputFilelist="scripts"
 			outputDir="${build.js.dir}"
-			outputFile="script.js"
+			outputFile="scripts.min.js"
 			refFile="${build.dist.dir}/index.html"
 			refTag="&lt;!--##OPTIMIZE_JS##--&gt;"
 			refType="element"
 			outputFileLocation="http://static.example.org/js/"/>
-
 
         <!--
             And a minimal example. This just concatenates and optimizes

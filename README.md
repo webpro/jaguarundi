@@ -46,8 +46,8 @@ It is all easily configurable, e.g. you can set:
 
 * the files to be concatenated and optimized (e.g. in development there might be debug.css that should not be included)
 * the order of the files to be concatenated
-* optional: the filename of the resulting optimized file (default: `stylesheet.css` - the build renames to `stylesheet.468fb262.css`)
-* optional: the length of the checksum in the filename (default: `8`, max: `32`)
+* optional: the filename of the resulting optimized file (default: `stylesheet.css`/`script.js`)
+* optional: the checksum of the optimized file replaces `#` characters in the filename (e.g. `script.########.min.js` becomes `script.db981dae.min.js`)
 * optional: the tags surrounding the `<link>` or `<script>` elements (default: `<!--##OPTIMIZE_CSS##-->`)
 * optional: the url to the resulting file (here: `http://static.example.org/css/`)
 

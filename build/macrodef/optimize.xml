@@ -21,7 +21,6 @@
 	<!--
 		Properties and default values (may be overridden by your properties file):
 		- lib.closurecompiler.level = SIMPLE_OPTIMIZATIONS
-		- build.target.CHECKSUM_LENGTH = 8
 	-->
 
 	<macrodef name="optimize-js">
@@ -153,33 +152,40 @@
 
 		<sequential>
 
-			<!-- Set default value for checksum length -->
-			<property name="build.target.CHECKSUM_LENGTH" value="8"/>
+            <!-- Create checksum of optimized file -->
+            <checksum file="@{dir}/@{file}" property="checksum"/>
 
-			<!-- Create checksum -->
-			<checksum file="@{dir}/@{file}" property="temp.checksum"/>
+            <!-- Find the #'s in filename and determine the length -->
+            <propertyregex
+                property="checksum.placeholder"
+                input="@{file}"
+                regexp="[^#]*([#]*)"
+                select="\1"
+                override="true"/>
 
-			<!-- Store new filename with (clipped) checksum in property -->
-			<propertyregex
-				property="temp.filename"
-				input="@{file} ${temp.checksum}"
-				regexp="(.*)\.(.*)\ (.{${build.target.CHECKSUM_LENGTH}})(.{0,31})"
-				select="\1.\3.\2"
-				override="yes"/>
+            <length string="${checksum.placeholder}" property="checksum.placeholder.length"/>
+
+            <!-- Store new filename with (clipped) checksum in new filename for optimized file -->
+            <propertyregex
+                property="filename.optimized"
+                input="@{file}|${checksum}"
+                regexp="([^#]*)([#]*)([^|]*)\|(.{${checksum.placeholder.length}})"
+                select="\1\4\3"
+                override="true"/>
 
 			<!-- Rename file -->
-			<echo message="Versioning: Renaming @{file} to ${temp.filename}"/>
-			<move file="@{dir}/@{file}" tofile="@{dir}/${temp.filename}" />
+			<echo message="Versioning: Renaming @{file} to ${filename.optimized}"/>
+			<move file="@{dir}/@{file}" tofile="@{dir}/${filename.optimized}" />
 
             <if>
                 <equals arg1="@{refFile}" arg2="" />
                 <then>
-                    <!-- Store filename in template file -->
+                    <!-- No template file given -->
                     <echo message="Versioning: Not updating references"/>
                 </then>
                 <else>
 
-                    <!-- Store filename in template file -->
+                    <!-- Update filename in template file -->
                     <echo message="Versioning: Replacing tag @{refTag} in @{refFile}"/>
                     <if>
                         <equals arg1="@{type}" arg2="css" />
@@ -212,9 +218,12 @@
                 </else>
             </if>
 
-			<!-- Cleanup -->
-			<var name="temp.checksum" value="" unset="true"/>
-			<var name="temp.filename" value="" unset="true"/>
+			<!-- Cleanup (unsetting properties so they can be re-used) -->
+			<var name="checksum" value="" unset="true"/>
+			<var name="checksum.placeholder" value="" unset="true"/>
+			<var name="checksum.placeholder.length" value="" unset="true"/>
+			<var name="filename.optimized" value="" unset="true"/>
+			<var name="refReplace" value="" unset="true"/>
 		</sequential>
 	</macrodef>
 
