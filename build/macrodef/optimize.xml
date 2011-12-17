@@ -141,7 +141,7 @@
 			<property name="lib.closurecompiler.level" value="SIMPLE_OPTIMIZATIONS"/>
 
 			<echo message="Closure Compiler Application is saving minified output to @{fileOutput}"/>
-		    <java jar="${imported.basedir}/../lib/compiler-20111003.jar" fork="true">
+		    <java jar="${imported.basedir}/../lib/compiler.jar" fork="true">
 		        <arg line="--compilation_level ${lib.closurecompiler.level} --js @{fileInput} --js_output_file @{fileOutput}" />
 		    </java>
 		</sequential>
@@ -154,7 +154,7 @@
 
 		<sequential>
 			<echo message="YUI Compressor is saving minified output to @{fileOutput}"/>
-		    <java jar="${imported.basedir}/../lib/yuicompressor-2.4.6.jar" fork="true">
+		    <java jar="${imported.basedir}/../lib/yuicompressor.jar" fork="true">
 		        <arg line="--type css -o @{fileOutput} @{fileInput}" />
 		    </java>
 		</sequential>
@@ -167,7 +167,7 @@
 
         <sequential>
             <echo message="HtmlCompressor is saving minified output to @{outputDir}"/>
-            <java jar="${imported.basedir}/../lib/htmlcompressor-1.5.2.jar" fork="true">
+            <java jar="${imported.basedir}/../lib/htmlcompressor.jar" fork="true">
                 <arg line="--type html"/>
                 <arg value="--remove-intertag-spaces"/>
                 <arg value="--remove-style-attr"/>

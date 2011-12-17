@@ -11,7 +11,7 @@ The goal of this small project is to simplify and improve the way static resourc
 ## What does it do?
 
 * Reduce the number of HTTP requests: by concatenating both Javascript and CSS files
-* Reduce the number of kilobytes: by minifying Javascript, CSS, and HTML files (using Yahoo Compressor and/or Google Compiler)
+* Reduce the number of kilobytes: by minifying Javascript, CSS, and HTML files (using Yahoo Compressor and/or Closure Compiler)
 * Version the resulting files: by adding a checksum of the resulting file to the filename (this is better than e.g. a new version for each deployment, since those files might not have been changed). Except for the HTML files.
 * Replace the references to the original Javascript and CSS files and replace with references to the resulting optimized files.
 
@@ -21,7 +21,7 @@ By the way, all source files are first copied to a distribution folder before be
 
 * Ant
 * Ant-Contrib (included)
-* Google Compiler (included)
+* Closure Compiler (included)
 * YUI Compressor (included)
 * HTML Compressor (included)
 
