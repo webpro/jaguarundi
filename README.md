@@ -10,9 +10,9 @@ The goal of this small project is to simplify and improve the way static resourc
 
 ## What does it do?
 
-* Reduce the number of http requests: by concatenating both Javascript and CSS files
-* Reduce the number of kilobytes: by minifying both Javascript and CSS files (using Yahoo Compressor and/or Google Compiler)
-* Version the resulting files: by adding a checksum of the resulting file to the filename (this is better than e.g. a new version for each deployment, since those files might not have been changed).
+* Reduce the number of HTTP requests: by concatenating both Javascript and CSS files
+* Reduce the number of kilobytes: by minifying Javascript, CSS, and HTML files (using Yahoo Compressor and/or Google Compiler)
+* Version the resulting files: by adding a checksum of the resulting file to the filename (this is better than e.g. a new version for each deployment, since those files might not have been changed). Except for the HTML files.
 * Replace the references to the original Javascript and CSS files and replace with references to the resulting optimized files.
 
 By the way, all source files are first copied to a distribution folder before being processed (so it doesn't touch your source files).
@@ -23,6 +23,7 @@ By the way, all source files are first copied to a distribution folder before be
 * Ant-Contrib (included)
 * Google Compiler (included)
 * YUI Compressor (included)
+* HTML Compressor (included)
 
 ## Example
 
@@ -42,12 +43,12 @@ And the actual file being referenced here (`stylesheet-468fb262.css`) is created
 
 ## Configuration
 
-It is all easily configurable, e.g. you can set:
+There is quite some flexibility using options, such as:
 
 * the files to be concatenated and optimized (e.g. in development there might be debug.css that should not be included)
 * the order of the files to be concatenated
 * optional: the filename of the resulting optimized file (default: `stylesheet.css`/`script.js`)
-* optional: the checksum of the optimized file replaces `#` characters in the filename (e.g. `script.########.min.js` becomes `script.db981dae.min.js`)
+* optional: the checksum of the optimized file replaces `#` characters in the new filename (e.g. `script.########.min.js` becomes `script.db981dae.min.js`)
 * optional: the tags surrounding the `<link>` or `<script>` elements (default: `<!--##OPTIMIZE_CSS##-->`)
 * optional: the url to the resulting file (here: `http://static.example.org/css/`)
 
@@ -56,7 +57,6 @@ The `build.xml` and `build.properties` file are the files you should modify. The
 ## Ideas for improvement
 
 * Ant task to optimize images (using e.g. PNGOUT).
-* Ant task to minify HTML.
 * Provide the option to automatically resolve an ordered fileset within the wrapping tags (no need to provide a `<filelist>`).
 * Provide option to choose the minifyer lib for Javascript and CSS (separately).
 

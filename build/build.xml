@@ -94,6 +94,8 @@
 			Make sure they each have their own filelist.
 		-->
 
+        <optimize-html inputDir="${build.dist.dir}" outputDir="${build.dist.dir}"/>
+
 	</target>
 
     <target name="POST-CLEAN" depends="OPTIMIZE">

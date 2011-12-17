@@ -110,7 +110,27 @@
 		</sequential>
 	</macrodef>
 
-	<macrodef name="closurecompiler">
+    <macrodef name="optimize-html">
+
+   		<attribute name="inputDir"/>
+   		<attribute name="outputDir"/>
+
+   		<sequential>
+
+   			<echo message="--- Optimizing HTML ---"/>
+
+   			<!-- Closure Compiler Application -->
+   			<htmlcompressor
+   				inputDir="@{inputDir}"
+   				outputDir="@{outputDir}"/>
+
+   			<echo message="--- Optimizing Javascript done ---"/>
+   			<echo message=""/>
+   		</sequential>
+   	</macrodef>
+
+
+    <macrodef name="closurecompiler">
 
 		<attribute name="fileInput"/>
 		<attribute name="fileOutput"/>
@@ -138,6 +158,30 @@
 		        <arg line="--type css -o @{fileOutput} @{fileInput}" />
 		    </java>
 		</sequential>
+	</macrodef>
+
+    <macrodef name="htmlcompressor">
+
+        <attribute name="inputDir"/>
+      	<attribute name="outputDir"/>
+
+        <sequential>
+            <echo message="HtmlCompressor is saving minified output to @{outputDir}"/>
+            <java jar="${imported.basedir}/../lib/htmlcompressor-1.5.2.jar" fork="true">
+                <arg line="--type html"/>
+                <arg value="--remove-intertag-spaces"/>
+                <arg value="--remove-style-attr"/>
+                <arg value="--remove-link-attr"/>
+                <arg value="--remove-script-attr"/>
+                <arg value="--compress-css"/>
+                <arg value="--compress-js"/>
+                <arg line="--js-compressor closure"/>
+                <arg line="--closure-opt-level simple"/>
+                <arg value="-o"/>
+                <arg value="@{inputDir}"/>
+                <arg value="@{outputDir}"/>
+            </java>
+        </sequential>
 	</macrodef>
 
 	<macrodef name="addClippedChecksum">
@@ -194,17 +238,17 @@
                                 file="@{refFile}"
                                 match="@{refTag}(.*)@{refTag}"
                                 flags="s"
-                                replace="&lt;link rel=&quot;stylesheet&quot; href=&quot;@{outputFileLocation}${temp.filename}&quot; type=&quot;text/css&quot;/&gt;"/>
+                                replace="&lt;link rel=&quot;stylesheet&quot; href=&quot;@{outputFileLocation}${filename.optimized}&quot; type=&quot;text/css&quot;/&gt;"/>
                         </then>
                     </if>
                     <if>
                         <equals arg1="@{type}" arg2="js" />
                         <then>
-                            <var name="refReplace" value="&lt;script src=&quot;@{outputFileLocation}${temp.filename}&quot;&gt;&lt;/script&gt;"/>
+                            <var name="refReplace" value="&lt;script src=&quot;@{outputFileLocation}${filename.optimized}&quot;&gt;&lt;/script&gt;"/>
                             <if>
                                 <equals arg1="@{refType}" arg2="string" />
                                 <then>
-                                    <var name="refReplace" value="&quot;@{outputFileLocation}${temp.filename}&quot;"/>
+                                    <var name="refReplace" value="&quot;@{outputFileLocation}${filename.optimized}&quot;"/>
                                 </then>
                             </if>
                             <replaceregexp
